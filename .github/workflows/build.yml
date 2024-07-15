@@ -1,0 +1,25 @@
+name: Build in CI
+
+on: [push]
+
+env:
+  LLVM_VERSION: 18.1.8
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: "3.20"
+      - name: Pull the latest packages
+        run: |
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/clang-$LLVM_VERSION.src.tar.xz
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/llvm-$LLVM_VERSION.src.tar.xz
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/clang-tools-extra-$LLVM_VERSION.src.tar.xz
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/cmake-$LLVM_VERSION.src.tar.xz
+
