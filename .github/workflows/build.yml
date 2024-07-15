@@ -23,3 +23,43 @@ jobs:
           wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/clang-tools-extra-$LLVM_VERSION.src.tar.xz
           wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/cmake-$LLVM_VERSION.src.tar.xz
 
+      - name: Extract packages
+        run: |
+          tar -xJf clang-$LLVM_VERSION.src.tar.xz
+          tar -xJf llvm-$LLVM_VERSION.src.tar.xz
+          tar -xJf clang-tools-extra-$LLVM_VERSION.src.tar.xz
+          tar -xJf cmake-$LLVM_VERSION.src.tar.xz
+      
+      - name: Rename folders
+        run: |
+          mv clang-$LLVM_VERSION.src clang
+          mv llvm-$LLVM_VERSION.src llvm
+          mv clang-tools-extra-$LLVM_VERSION.src clang-tools-extra
+          mv cmake-$LLVM_VERSION.src cmake
+
+      - name: Prepare build folder
+        run: | 
+          mkdir build
+          
+      - name: Configure CMake
+        run: |
+          cd build
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=$PWD/built-ready \
+          -DCLANG_BUILD_TOOLS=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
+          -DLLVM_TARGETS_TO_BUILD="X86" \
+          -DLLVM_INCLUDE_EXAMPLES=0 \
+          -DLLVM_INCLUDE_BENCHMARKS=0 \
+          -DLLVM_INCLUDE_TESTS=0 \
+          ../llvm
+
+      - name: Build Clang-Tidy
+        run: |
+          cmake --build build --target clang-tidy
+
+      - name: Install Clang-Tidy
+        run: |
+          cmake --build build --target install-clang-tidy
+
+          
+
