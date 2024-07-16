@@ -74,8 +74,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tool-clang-tidy-macos-13-x64
-          path: tool-clang-tidy-macos-13-x64-$LLVM_VERSION.tar.gz
-          retention-days: 1
+          path: tool-clang-tidy-*.tar.gz
+          retention-days: 15
 
           
 
