@@ -68,6 +68,7 @@ jobs:
       - name: Archive binary
         run: |
           tar -czvf tool-clang-tidy-macos-13-x64-$LLVM_VERSION.tar.gz $PWD/build/built-ready/bin/clang-tidy
+          ls -al
 
       - name: Attach artifact
         uses: actions/upload-artifact@v3
