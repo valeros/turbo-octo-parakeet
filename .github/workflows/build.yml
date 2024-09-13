@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: jwlawson/actions-setup-cmake@v2.0.2
@@ -46,8 +46,9 @@ jobs:
           cd build
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=$PWD/built-ready \
+          -DDEFAULT_SYSROOT="$(xcrun --show-sdk-path)" \
           -DCLANG_BUILD_TOOLS=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
-          -DLLVM_TARGETS_TO_BUILD="X86" \
+          -DLLVM_TARGETS_TO_BUILD="AArch64" \
           -DLLVM_INCLUDE_EXAMPLES=0 \
           -DLLVM_INCLUDE_BENCHMARKS=0 \
           -DLLVM_INCLUDE_TESTS=0 \
@@ -61,19 +62,20 @@ jobs:
         run: |
           cmake --build build --target install-clang-tidy
 
-      # - name: Temporary step to test packaging
-      #   run: |
-      #     mkdir -p $PWD/build/built-ready/bin/ && touch $PWD/build/built-ready/bin/clang-tidy
+      - name: Temporary step to check final binary
+        run: |
+          file $PWD/build/built-ready/bin/clang-tidy
+          otool $PWD/build/built-ready/bin/clang-tidy
 
       - name: Archive binary
         run: |
-          tar -czvf tool-clang-tidy-macos-13-x64-$LLVM_VERSION.tar.gz $PWD/build/built-ready/bin/clang-tidy
+          tar -czvf tool-clang-tidy-macos-13-arm64-$LLVM_VERSION.tar.gz $PWD/build/built-ready/bin/clang-tidy
           ls -al
 
       - name: Attach artifact
         uses: actions/upload-artifact@v3
         with:
-          name: tool-clang-tidy-macos-13-x64
+          name: tool-clang-tidy-macos-13-arm64
           path: tool-clang-tidy-*.tar.gz
           retention-days: 15
 
