@@ -65,7 +65,7 @@ jobs:
       - name: Temporary step to check final binary
         run: |
           file $PWD/build/built-ready/bin/clang-tidy
-          otool $PWD/build/built-ready/bin/clang-tidy
+          otool -L $PWD/build/built-ready/bin/clang-tidy
 
       - name: Archive binary
         run: |
