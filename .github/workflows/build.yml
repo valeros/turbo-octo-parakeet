@@ -19,7 +19,7 @@ jobs:
             runner: macos-latest
             targets_to_build: 'AArch64'
             build-args: '-j$(sysctl -n hw.ncpu)'
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: jwlawson/actions-setup-cmake@v2.0.2
         with:
