@@ -82,5 +82,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: tool-clang-tidy-${{ matrix.os }}
-          path: tool-clang-tidy-${{ matrix.os }}-$LLVM_VERSION.tar.gz
+          path: tool-clang-tidy-${{ matrix.os }}-*.tar.gz
           retention-days: 15
