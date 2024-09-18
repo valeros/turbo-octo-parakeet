@@ -75,7 +75,7 @@ jobs:
 
       - name: Archive binary
         run: |
-          tar -czvf tool-clang-tidy-${{ matrix.os }}-$LLVM_VERSION.tar.gz $PWD/built-ready-${{ matrix.os }}/bin/clang-tidy
+          tar -czvf tool-clang-tidy-${{ matrix.os }}-$LLVM_VERSION.tar.gz $PWD/build/built-ready-${{ matrix.os }}/bin/clang-tidy
           ls -al
 
       - name: Attach artifact
