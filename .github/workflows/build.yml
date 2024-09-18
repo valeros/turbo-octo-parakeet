@@ -3,14 +3,22 @@ name: Build in CI
 on: [push]
 
 env:
-  LLVM_VERSION: 18.1.8
+  LLVM_VERSION: 19.1.0
 
 jobs:
   build:
     strategy:
-      fail-fast: false
       matrix:
-        os: [macos-13]
+        os: [ macos-x64, macos-arm64 ]
+        include:
+          - os: macos-x64
+            runner: macos-13
+            targets_to_build: 'X86'
+            build-args: '-j$(sysctl -n hw.ncpu)'
+          - os: macos-arm64
+            runner: macos-latest
+            targets_to_build: 'AArch64'
+            build-args: '-j$(sysctl -n hw.ncpu)'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: jwlawson/actions-setup-cmake@v2.0.2
@@ -45,9 +53,9 @@ jobs:
         run: |
           cd build
           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=$PWD/built-ready \
+          -DCMAKE_INSTALL_PREFIX=$PWD/built-ready-${{ matrix.os }} \
           -DCLANG_BUILD_TOOLS=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
-          -DLLVM_TARGETS_TO_BUILD="X86" \
+          -DLLVM_TARGETS_TO_BUILD="${{ matrix.targets_to_build }}" \
           -DLLVM_INCLUDE_EXAMPLES=0 \
           -DLLVM_INCLUDE_BENCHMARKS=0 \
           -DLLVM_INCLUDE_TESTS=0 \
@@ -55,7 +63,7 @@ jobs:
 
       - name: Build Clang-Tidy
         run: |
-          cmake --build build --target clang-tidy
+          cmake --build build ${{ matrix.build-args }} --target clang-tidy
 
       - name: Install Clang-Tidy
         run: |
@@ -67,12 +75,12 @@ jobs:
 
       - name: Archive binary
         run: |
-          tar -czvf tool-clang-tidy-macos-13-x64-$LLVM_VERSION.tar.gz $PWD/build/built-ready/bin/clang-tidy
+          tar -czvf tool-clang-tidy-${{ matrix.os }}-$LLVM_VERSION.tar.gz $PWD/built-ready-${{ matrix.os }}/bin/clang-tidy
           ls -al
 
       - name: Attach artifact
         uses: actions/upload-artifact@v3
         with:
-          name: tool-clang-tidy-macos-13-x64
-          path: tool-clang-tidy-*.tar.gz
+          name: tool-clang-tidy-${{ matrix.os }}
+          path: tool-clang-tidy-${{ matrix.os }}-$LLVM_VERSION.tar.gz
           retention-days: 15
